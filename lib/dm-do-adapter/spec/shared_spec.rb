@@ -396,6 +396,28 @@ share_examples_for 'A DataObjects Adapter' do
         end
       end
 
+      context 'with an range with inclusive end' do
+        before :all do
+          5.times do |index|
+            @article_model.create(:name => "Test #{index}", :parent => @article_model.last).should be_saved
+          end
+        end
+
+        it 'should not call #partition on the range' do
+          range = 1..5
+
+          query = DataMapper::Query.new(repository, @article_model, :parent_name => range)
+
+          # We have to get the dumped value, because the original value has been
+          # dupped multiple times
+          val = query.conditions.operands.first.send(:dumped_value)
+          val.stub(:partition)
+          val.should_not_receive(:partition)
+
+          @adapter.read(query)
+        end
+      end
+
       context 'with an inclusion comparison of nil values' do
         before :all do
           5.times do |index|

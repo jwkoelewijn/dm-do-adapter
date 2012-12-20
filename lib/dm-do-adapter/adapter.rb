@@ -677,10 +677,11 @@ module DataMapper
           # update conditions_statement to use it
 
           # break exclusive Range queries up into two comparisons ANDed together
-          if value.kind_of?(Range) && value.exclude_end?
+          if value.kind_of?(Range)
+            comparator = value.exclude_end? ? :lt : :lte
             operation = Query::Conditions::Operation.new(:and,
               Query::Conditions::Comparison.new(:gte, subject, value.first),
-              Query::Conditions::Comparison.new(:lt,  subject, value.last)
+              Query::Conditions::Comparison.new(comparator, subject, value.last)
             )
 
             statement, bind_values = conditions_statement(operation, qualify)
