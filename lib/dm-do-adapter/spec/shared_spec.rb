@@ -405,7 +405,8 @@ share_examples_for 'A DataObjects Adapter' do
 
         it 'should not call #partition on the range' do
           range = 1..5
-          range.should_not receive(:partition)
+          range.double(:partition)
+          range.should_not_receive(:partition)
           query = DataMapper::Query.new(repository, @article_model, :parent_name => range)
           @adapter.read(query)
         end
