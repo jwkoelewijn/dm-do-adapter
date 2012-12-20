@@ -396,6 +396,21 @@ share_examples_for 'A DataObjects Adapter' do
         end
       end
 
+      context 'with an range with inclusive end' do
+        before :all do
+          5.times do |index|
+            @article_model.create(:name => "Test #{index}", :parent => @article_model.last).should be_saved
+          end
+        end
+
+        it 'should not call #partition on the range' do
+          range = 1..5
+          range.should_not receive(:partition)
+          query = DataMapper::Query.new(repository, @article_model, :parent_name => range)
+          @adapter.read(query)
+        end
+      end
+
       context 'with an inclusion comparison of nil values' do
         before :all do
           5.times do |index|
